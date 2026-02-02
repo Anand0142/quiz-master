@@ -1,5 +1,3 @@
-import { Trophy } from "lucide-react";
-
 interface ScoreDisplayProps {
   score: number;
   total: number;
@@ -7,10 +5,9 @@ interface ScoreDisplayProps {
 
 const ScoreDisplay = ({ score, total }: ScoreDisplayProps) => {
   return (
-    <div className="flex items-center gap-3 bg-secondary px-5 py-3 rounded-xl">
-      <Trophy className="w-6 h-6 text-primary" />
-      <span className="font-heading font-bold text-xl text-foreground">
-        {score}/{total}
+    <div className="bg-primary/10 px-5 py-2 rounded-xl border border-primary/30">
+      <span className="font-heading font-bold text-lg text-primary">
+        Score: {score}/{total}
       </span>
     </div>
   );
