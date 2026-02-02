@@ -1,11 +1,10 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { useState, useCallback } from "react";
 import { Question } from "@/data/quizQuestions";
 import ProgressBar from "./ProgressBar";
 import ScoreDisplay from "./ScoreDisplay";
 import OptionButton from "./OptionButton";
 import FeedbackAlert from "./FeedbackAlert";
+import HeartAnimation from "./HeartAnimation";
 
 interface QuizCardProps {
   question: Question;
@@ -28,6 +27,7 @@ const QuizCard = ({
 }: QuizCardProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [hasAnswered, setHasAnswered] = useState(false);
+  const [showHeart, setShowHeart] = useState(false);
 
   const handleOptionClick = (index: number) => {
     if (hasAnswered) return;
@@ -37,7 +37,22 @@ const QuizCard = ({
     
     const isCorrect = index === question.correctAnswer;
     onAnswer(isCorrect);
+
+    if (isCorrect) {
+      // Show heart animation for correct answers
+      setShowHeart(true);
+    } else {
+      // Auto-advance after delay for wrong answers
+      setTimeout(() => {
+        handleNext();
+      }, 1500);
+    }
   };
+
+  const handleHeartComplete = useCallback(() => {
+    setShowHeart(false);
+    handleNext();
+  }, []);
 
   const handleNext = () => {
     setSelectedAnswer(null);
@@ -49,6 +64,9 @@ const QuizCard = ({
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Heart Animation */}
+      <HeartAnimation show={showHeart} onComplete={handleHeartComplete} />
+
       {/* Header */}
       <header className="w-full max-w-3xl mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
@@ -87,20 +105,6 @@ const QuizCard = ({
 
             {/* Feedback */}
             <FeedbackAlert isCorrect={isCorrect} show={hasAnswered} />
-
-            {/* Next Button */}
-            {hasAnswered && (
-              <div className="mt-6 animate-slide-up">
-                <Button
-                  onClick={handleNext}
-                  size="lg"
-                  className="w-full font-heading font-semibold text-lg h-14 bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  {isLastQuestion ? "See Results" : "Next Question"}
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       </main>
