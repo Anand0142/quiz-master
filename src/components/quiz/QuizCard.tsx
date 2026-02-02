@@ -5,6 +5,16 @@ import ScoreDisplay from "./ScoreDisplay";
 import OptionButton from "./OptionButton";
 import FeedbackAlert from "./FeedbackAlert";
 import HeartAnimation from "./HeartAnimation";
+import ValentineErrorPopup from "./ValentineErrorPopup";
+import coupleImage from "@/assets/question-couple.jpg";
+import rosesImage from "@/assets/question-roses.jpg";
+import chocolateImage from "@/assets/question-chocolate.jpg";
+
+const imageMap: Record<string, string> = {
+  couple: coupleImage,
+  roses: rosesImage,
+  chocolate: chocolateImage,
+};
 
 interface QuizCardProps {
   question: Question;
@@ -14,6 +24,7 @@ interface QuizCardProps {
   onAnswer: (isCorrect: boolean) => void;
   onNext: () => void;
   isLastQuestion: boolean;
+  onValentineYes?: () => void;
 }
 
 const QuizCard = ({
@@ -24,13 +35,29 @@ const QuizCard = ({
   onAnswer,
   onNext,
   isLastQuestion,
+  onValentineYes,
 }: QuizCardProps) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [hasAnswered, setHasAnswered] = useState(false);
   const [showHeart, setShowHeart] = useState(false);
+  const [showValentineError, setShowValentineError] = useState(false);
 
   const handleOptionClick = (index: number) => {
-    if (hasAnswered) return;
+    if (hasAnswered && !question.isValentineQuestion) return;
+    
+    // Special handling for Valentine question
+    if (question.isValentineQuestion) {
+      if (index === 1) { // "No" selected
+        setShowValentineError(true);
+        return;
+      } else { // "Yes" selected
+        setSelectedAnswer(index);
+        setHasAnswered(true);
+        onAnswer(true);
+        setShowHeart(true);
+        return;
+      }
+    }
     
     setSelectedAnswer(index);
     setHasAnswered(true);
@@ -39,10 +66,8 @@ const QuizCard = ({
     onAnswer(isCorrect);
 
     if (isCorrect) {
-      // Show heart animation for correct answers
       setShowHeart(true);
     } else {
-      // Auto-advance after delay for wrong answers
       setTimeout(() => {
         handleNext();
       }, 1500);
@@ -51,8 +76,12 @@ const QuizCard = ({
 
   const handleHeartComplete = useCallback(() => {
     setShowHeart(false);
-    handleNext();
-  }, []);
+    if (question.isValentineQuestion && onValentineYes) {
+      onValentineYes();
+    } else {
+      handleNext();
+    }
+  }, [question.isValentineQuestion, onValentineYes]);
 
   const handleNext = () => {
     setSelectedAnswer(null);
@@ -60,12 +89,20 @@ const QuizCard = ({
     onNext();
   };
 
+  const handleCloseError = () => {
+    setShowValentineError(false);
+  };
+
   const isCorrect = selectedAnswer === question.correctAnswer;
+  const questionImage = question.image ? imageMap[question.image] : null;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Heart Animation */}
       <HeartAnimation show={showHeart} onComplete={handleHeartComplete} />
+      
+      {/* Valentine Error Popup */}
+      <ValentineErrorPopup show={showValentineError} onClose={handleCloseError} />
 
       {/* Header */}
       <header className="w-full max-w-3xl mx-auto px-4 py-6">
@@ -82,6 +119,17 @@ const QuizCard = ({
       <main className="flex-1 flex items-center justify-center px-4 pb-8">
         <div className="w-full max-w-3xl">
           <div className="bg-card rounded-2xl p-6 md:p-8 border border-border animate-slide-up">
+            {/* Question Image */}
+            {questionImage && (
+              <div className="mb-6 flex justify-center">
+                <img 
+                  src={questionImage} 
+                  alt="Question" 
+                  className="w-48 h-48 md:w-56 md:h-56 rounded-xl object-cover shadow-lg"
+                />
+              </div>
+            )}
+
             {/* Question */}
             <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-8 text-center">
               {question.question}
@@ -96,15 +144,17 @@ const QuizCard = ({
                   index={index}
                   isSelected={selectedAnswer === index}
                   isCorrect={index === question.correctAnswer}
-                  showResult={hasAnswered}
-                  disabled={hasAnswered}
+                  showResult={hasAnswered && !question.isValentineQuestion}
+                  disabled={hasAnswered && !question.isValentineQuestion}
                   onClick={() => handleOptionClick(index)}
                 />
               ))}
             </div>
 
-            {/* Feedback */}
-            <FeedbackAlert isCorrect={isCorrect} show={hasAnswered} />
+            {/* Feedback - not for Valentine question */}
+            {!question.isValentineQuestion && (
+              <FeedbackAlert isCorrect={isCorrect} show={hasAnswered} />
+            )}
           </div>
         </div>
       </main>

@@ -3,6 +3,8 @@ export interface Question {
   question: string;
   options: string[];
   correctAnswer: number;
+  image?: string;
+  isValentineQuestion?: boolean;
 }
 
 export const quizQuestions: Question[] = [
@@ -26,9 +28,10 @@ export const quizQuestions: Question[] = [
   },
   {
     id: 4,
-    question: "Who painted the Mona Lisa?",
-    options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
-    correctAnswer: 2,
+    question: "What does this image represent?",
+    options: ["Friendship", "Love & Togetherness", "Adventure", "Nature"],
+    correctAnswer: 1,
+    image: "couple",
   },
   {
     id: 5,
@@ -44,9 +47,10 @@ export const quizQuestions: Question[] = [
   },
   {
     id: 7,
-    question: "What year did World War II end?",
-    options: ["1943", "1944", "1945", "1946"],
-    correctAnswer: 2,
+    question: "What do these represent on Valentine's Day?",
+    options: ["Apology", "Love & Romance", "Celebration", "Gratitude"],
+    correctAnswer: 1,
+    image: "roses",
   },
   {
     id: 8,
@@ -56,14 +60,16 @@ export const quizQuestions: Question[] = [
   },
   {
     id: 9,
-    question: "Which element has the atomic number 1?",
-    options: ["Helium", "Oxygen", "Carbon", "Hydrogen"],
-    correctAnswer: 3,
+    question: "What's the perfect Valentine's treat?",
+    options: ["Cookies", "Chocolates", "Cake", "Ice Cream"],
+    correctAnswer: 1,
+    image: "chocolate",
   },
   {
     id: 10,
-    question: "What is the largest ocean on Earth?",
-    options: ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Arctic Ocean"],
-    correctAnswer: 2,
+    question: "Will you be my Valentine? 💕",
+    options: ["Yes 💖", "No 💔"],
+    correctAnswer: 0,
+    isValentineQuestion: true,
   },
 ];
