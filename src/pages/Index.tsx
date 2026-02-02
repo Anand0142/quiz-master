@@ -2,11 +2,13 @@ import { useState, useCallback } from "react";
 import { quizQuestions } from "@/data/quizQuestions";
 import QuizCard from "@/components/quiz/QuizCard";
 import QuizResults from "@/components/quiz/QuizResults";
+import ValentineSuccess from "@/components/quiz/ValentineSuccess";
 
 const Index = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [showValentineSuccess, setShowValentineSuccess] = useState(false);
 
   const handleAnswer = useCallback((isCorrect: boolean) => {
     if (isCorrect) {
@@ -22,11 +24,26 @@ const Index = () => {
     }
   }, [currentQuestionIndex]);
 
+  const handleValentineYes = useCallback(() => {
+    setShowValentineSuccess(true);
+  }, []);
+
   const handleRestart = useCallback(() => {
     setCurrentQuestionIndex(0);
     setScore(0);
     setIsCompleted(false);
+    setShowValentineSuccess(false);
   }, []);
+
+  if (showValentineSuccess) {
+    return (
+      <ValentineSuccess
+        score={score}
+        total={quizQuestions.length}
+        onRestart={handleRestart}
+      />
+    );
+  }
 
   if (isCompleted) {
     return (
@@ -47,6 +64,7 @@ const Index = () => {
       onAnswer={handleAnswer}
       onNext={handleNext}
       isLastQuestion={currentQuestionIndex === quizQuestions.length - 1}
+      onValentineYes={handleValentineYes}
     />
   );
 };
